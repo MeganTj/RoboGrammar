@@ -74,6 +74,35 @@ class RidgedTerrainTask(ForwardSpeedTask):
                    [rng.normal(0.5, 0.1) + i, -0.2 + 0.02 * (i + 1), 0.0],
                    rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
 
+class FrozenRidgedTask(ForwardSpeedTask):
+  """
+  Task where the objective is to move forward as quickly as possible on a flat,
+  low-friction surface.
+  """
+
+  def __init__(self, seed=0, **kwargs):
+    super().__init__(**kwargs)
+    self.seed = seed
+    self.num_interleave = 6
+    self.frozen_floor = rd.Prop(rd.PropShape.BOX, 0.0, 0.05, [20.0 / self.num_interleave, 1.0, 10.0])
+    self.frozen_floor.color = [0.8, 0.9, 1.0]
+    self.ridged_floor = rd.Prop(rd.PropShape.BOX, 0.0, 0.5, [20.0 / self.num_interleave, 1.0, 10.0])
+    self.bump = rd.Prop(rd.PropShape.BOX, 0.0, 0.5, [0.1, 0.2, 10.0])
+
+  def add_terrain(self, sim):
+    rng = np.random.RandomState(self.seed)
+    for i in range(self.num_interleave):
+      if i % 2 == 0:
+        sim.add_prop(self.frozen_floor, [(20.0 / self.num_interleave) * i, -1.0, 0.0],
+                        rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
+      else:
+        sim.add_prop(self.ridged_floor, [(20.0 / self.num_interleave) * i, -1.0, 0.0],
+                     rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
+        for j in range(20 // self.num_interleave):
+          sim.add_prop(self.bump,
+                        [(20.0 / self.num_interleave) * i + j + rng.normal(0.5, 0.1), -0.2 + 0.02 * (j + 1), 0.0],
+                        rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
+
 class GapTerrainTask(ForwardSpeedTask):
   """
   Task where the objective is to move forward as quickly as possible over
