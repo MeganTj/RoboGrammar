@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import pyrobotdesign as rd
+import bisect
 
 class ForwardSpeedTask(ABC):
   def __init__(self, time_step=1.0/240, discount_factor=0.99, interval=16,
@@ -84,24 +85,36 @@ class FrozenRidgedTask(ForwardSpeedTask):
     super().__init__(**kwargs)
     self.seed = seed
     self.num_interleave = 6
-    self.frozen_floor = rd.Prop(rd.PropShape.BOX, 0.0, 0.05, [20.0 / self.num_interleave, 1.0, 10.0])
+    self.frozen_friction = 0.05
+    self.interval_length = 20.0 / self.num_interleave
+    self.frozen_floor = rd.Prop(rd.PropShape.BOX, 0.0, self.frozen_friction, [self.interval_length, 1.0, 10.0])
     self.frozen_floor.color = [0.8, 0.9, 1.0]
-    self.ridged_floor = rd.Prop(rd.PropShape.BOX, 0.0, 0.5, [20.0 / self.num_interleave, 1.0, 10.0])
+    self.ridged_friction = 0.5
+    self.ridged_floor = rd.Prop(rd.PropShape.BOX, 0.0, self.ridged_friction, [self.interval_length, 1.0, 10.0])
     self.bump = rd.Prop(rd.PropShape.BOX, 0.0, 0.5, [0.1, 0.2, 10.0])
+    self.boundaries = [self.interval_length * i + (self.interval_length / 2.0)  for i in range(self.num_interleave)]
+    self.interval_frictions = [self.frozen_friction if i % 2 == 0 else self.ridged_friction for i in range(self.num_interleave)]
 
   def add_terrain(self, sim):
     rng = np.random.RandomState(self.seed)
     for i in range(self.num_interleave):
       if i % 2 == 0:
-        sim.add_prop(self.frozen_floor, [(20.0 / self.num_interleave) * i, -1.0, 0.0],
+        sim.add_prop(self.frozen_floor, [self.interval_length * i, -1.0, 0.0],
                         rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
       else:
-        sim.add_prop(self.ridged_floor, [(20.0 / self.num_interleave) * i, -1.0, 0.0],
+        sim.add_prop(self.ridged_floor, [self.interval_length * i, -1.0, 0.0],
                      rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
         for j in range(20 // self.num_interleave):
           sim.add_prop(self.bump,
-                        [(20.0 / self.num_interleave) * i + j + rng.normal(0.5, 0.1), -0.2 + 0.02 * (j + 1), 0.0],
+                        [self.interval_length * i + j + rng.normal(0.5, 0.1), -0.2 + 0.02 * (j + 1), 0.0],
                         rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
+    #   self.boundaries.append()
+  
+  def get_friction_coeff(self, x_pos):
+    # Given the robot's current x-position, get the friction coefficient of the terrain
+     idx = bisect.bisect_left(self.boundaries , x_pos) 
+     return self.interval_frictions[idx]
+
 
 class GapTerrainTask(ForwardSpeedTask):
   """
