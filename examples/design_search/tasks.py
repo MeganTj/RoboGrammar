@@ -75,6 +75,71 @@ class RidgedTerrainTask(ForwardSpeedTask):
                    [rng.normal(0.5, 0.1) + i, -0.2 + 0.02 * (i + 1), 0.0],
                    rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
 
+class MixedRidgedTask(ForwardSpeedTask):
+  """
+  Task where the objective is to move forward as quickly as possible over ridged
+  terrains.
+  """
+  # seed for each simulation
+  sim_seed=0
+
+  def __init__(self, seed=0, **kwargs):
+    super().__init__(**kwargs)
+    self.seed = seed
+
+    self.floor = rd.Prop(rd.PropShape.BOX, 0.0, 0.5, [20.0, 1.0, 10.0])
+    self.bump = rd.Prop(rd.PropShape.BOX, 0.0, 0.5, [0.1, 0.2, 10.0])
+
+  def add_terrain(self, sim):
+    rng = np.random.RandomState(self.seed+MixedRidgedTask.sim_seed)
+    sim.add_prop(self.floor, [0.0, -1.0, 0.0],
+                 rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
+    for i in range(20):
+      rand=rng.normal(0,1)
+      sim.add_prop(self.bump,
+                   [rand + i, -0.2 + 0.02 * (i + 1), 0.0],
+                   rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
+      print(rand)
+    print()
+    MixedRidgedTask.sim_seed += 1
+
+class MixedFrozenTask(ForwardSpeedTask):
+  """
+  Task where the objective is to move forward as quickly as possible on flat,
+  many different low-friction surfaces.
+  """
+  tmp_i=0
+  def __init__(self, seed=0, **kwargs):
+    super().__init__(**kwargs)
+    self.seed = seed
+    self.num_interleave = 10
+    self.frozen_floor_arr = []
+
+  def add_terrain(self, sim):
+    real_seed = MixedFrozenTask.tmp_i
+    real_seed = random.uniform(0,500)
+    if real_seed < 514:
+        real_seed = int(real_seed)
+    rng = np.random.RandomState(self.seed+real_seed)
+    MixedFrozenTask.tmp_i = MixedFrozenTask.tmp_i+1
+    self.frozen_floor_arr = []
+    for i in range(self.num_interleave):
+        frozen_floor = rd.Prop(rd.PropShape.BOX, 0.0, rng.uniform(0,0.5), [10.0 / self.num_interleave, 1.0, 10.0])
+        frozen_floor.color = [float(i)/self.num_interleave, 0.9, 1.0]
+        self.frozen_floor_arr += [frozen_floor]
+
+    for i in range(self.num_interleave):
+        print(self.frozen_floor_arr[i].friction)
+    print()
+
+    for i in range(self.num_interleave):
+        sim.add_prop(self.frozen_floor_arr[i], [(10.0 / self.num_interleave) * i, -1.0, 0.0],
+            rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
+  def get_frictions(self):
+    return np.array([self.frozen_floor_arr[i].friction for i in range(self.num_interleave)])
+
+
+
 class FrozenRidgedTask(ForwardSpeedTask):
   """
   Task where the objective is to move forward as quickly as possible on a flat,
