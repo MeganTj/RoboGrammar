@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pyrobotdesign as rd
 import bisect
+import random
 
 class ForwardSpeedTask(ABC):
   def __init__(self, time_step=1.0/240, discount_factor=0.99, interval=16,
@@ -116,7 +117,7 @@ class MixedFrozenTask(ForwardSpeedTask):
     self.frozen_floor_arr = []
 
   def add_terrain(self, sim):
-    real_seed = MixedFrozenTask.tmp_i
+    #real_seed = MixedFrozenTask.tmp_i
     real_seed = random.uniform(0,500)
     if real_seed < 514:
         real_seed = int(real_seed)
