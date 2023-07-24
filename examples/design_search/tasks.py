@@ -75,6 +75,9 @@ class RidgedTerrainTask(ForwardSpeedTask):
       sim.add_prop(self.bump,
                    [rng.normal(0.5, 0.1) + i, -0.2 + 0.02 * (i + 1), 0.0],
                    rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
+  
+  def get_friction_coeff(self, x_pos):
+    return 0.5
 
 class MixedRidgedTask(ForwardSpeedTask):
   """
@@ -288,6 +291,9 @@ class FrozenLakeTask(ForwardSpeedTask):
   def add_terrain(self, sim):
     sim.add_prop(self.floor, [0.0, -1.0, 0.0],
                  rd.Quaterniond(1.0, 0.0, 0.0, 0.0))
+
+  def get_friction_coeff(self, x_pos):
+    return 0.05
 
 class HillTerrainTask(ForwardSpeedTask):
   """
