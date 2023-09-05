@@ -22,15 +22,17 @@ struct Link {
        Scalar joint_kp, Scalar joint_kd, Scalar joint_torque,
        JointControlMode joint_control_mode, const Color &color,
        const Color &joint_color, const std::string &label,
-       const std::string &joint_label)
+       const std::string &joint_label, const std::string &link_name_,
+       const std::string &joint_name_, bool mirror_)
       : parent_(parent), joint_type_(joint_type), joint_pos_(joint_pos),
         joint_rot_(joint_rot), joint_axis_(joint_axis), shape_(shape),
         length_(length), radius_(radius), density_(density),
         friction_(friction), joint_kp_(joint_kp), joint_kd_(joint_kd),
         joint_torque_(joint_torque), joint_control_mode_(joint_control_mode),
         color_(color), joint_color_(joint_color), label_(label),
-        joint_label_(joint_label) {}
-
+        joint_label_(joint_label), link_name_(link_name_), joint_name_(joint_name_),
+        mirror_(mirror_) {}
+ // link_name_(link_name_), joint_name_(joint_name_)
   // Parent link index (-1 for base link)
   Index parent_;
   // Joint type
@@ -67,6 +69,12 @@ struct Link {
   std::string label_;
   // Joint label for rendering
   std::string joint_label_;
+  // Joint label for rendering
+  std::string link_name_;
+  // Joint label for rendering
+  std::string joint_name_;
+  // Whether or not the link is mirrored across xy axis
+  bool mirror_;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 };

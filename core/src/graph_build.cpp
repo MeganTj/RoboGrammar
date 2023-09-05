@@ -25,6 +25,7 @@ Robot buildRobot(const Graph &graph) {
     JointControlMode joint_control_mode_;
     Color joint_color_;
     std::string joint_label_;
+    std::string joint_name_;
     // Cumulative scaling factor
     Scalar scale_;
     // Mirror subsequent links/joints across the xy plane
@@ -65,7 +66,7 @@ Robot buildRobot(const Graph &graph) {
       /*joint_pos=*/0.0, /*joint_rot=*/Quaternion::Identity(),
       /*joint_axis=*/Vector3::Zero(), /*joint_kp=*/0.0, /*joint_kd=*/0.0,
       /*joint_torque=*/1.0, /*joint_control_mode=*/JointControlMode::POSITION,
-      /*joint_color=*/Color::Zero(), /*joint_label=*/"", /*scale=*/1.0,
+      /*joint_color=*/Color::Zero(), /*joint_label=*/"", /*joint_name=*/"", /*scale=*/1.0,
       /*mirror=*/false}};
   while (!entries_to_expand.empty()) {
     NodeEntry &entry = entries_to_expand.front();
@@ -90,7 +91,9 @@ Robot buildRobot(const Graph &graph) {
         /*joint_torque=*/entry.joint_torque_,
         /*joint_control_mode=*/entry.joint_control_mode_,
         /*color=*/node.attrs_.color_, /*joint_color=*/entry.joint_color_,
-        /*label=*/node.attrs_.label_, /*joint_label=*/entry.joint_label_);
+        /*label=*/node.attrs_.label_, /*joint_label=*/entry.joint_label_,
+        /*link_name=*/node.attrs_.name_, /*joint_name=*/entry.joint_name_,
+        /*mirror=*/entry.mirror_);
 
     for (const Edge &edge : graph.edges_) {
       if (edge.tail_ == entry.node_) {
@@ -107,6 +110,7 @@ Robot buildRobot(const Graph &graph) {
              /*joint_control_mode=*/edge.attrs_.joint_control_mode_,
              /*joint_color=*/edge.attrs_.color_,
              /*joint_label=*/edge.attrs_.label_,
+             /*joint_name=*/edge.attrs_.name_,
              /*scale=*/entry.scale_ * edge.attrs_.scale_,
              /*mirror=*/entry.mirror_ != edge.attrs_.mirror_});
       }

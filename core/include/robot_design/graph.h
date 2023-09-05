@@ -25,6 +25,7 @@ struct NodeAttributes {
   NodeAttributes(const std::string &label) : label_(label) {}
 
   std::string label_ = "";
+  std::string name_ = "";
   LinkShape shape_ = LinkShape::NONE;
   Scalar length_ = 1.0;
   Scalar radius_ = 0.05;
@@ -39,6 +40,7 @@ struct NodeAttributes {
   template <typename Visitor, typename... Args>
   static void accept(Visitor &&visit, Args &&... args) {
     visit(std::forward<Args>(args).label_...);
+    visit(std::forward<Args>(args).name_...);
     visit(std::forward<Args>(args).shape_...);
     visit(std::forward<Args>(args).length_...);
     visit(std::forward<Args>(args).radius_...);
@@ -62,6 +64,7 @@ struct EdgeAttributes {
 
   std::string id_ = "";
   std::string label_ = "";
+  std::string name_ = "";
   JointType joint_type_ = JointType::NONE;
   Scalar joint_pos_ = 1.0;
   Quaternion joint_rot_ = Quaternion::Identity();
@@ -83,6 +86,7 @@ struct EdgeAttributes {
   static void accept(Visitor &&visit, Args &&... args) {
     visit(std::forward<Args>(args).id_...);
     visit(std::forward<Args>(args).label_...);
+    visit(std::forward<Args>(args).name_...);
     visit(std::forward<Args>(args).joint_type_...);
     visit(std::forward<Args>(args).joint_pos_...);
     visit(std::forward<Args>(args).joint_rot_...);

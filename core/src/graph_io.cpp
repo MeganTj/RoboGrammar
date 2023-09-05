@@ -58,6 +58,8 @@ void updateNodeAttributes(
     const std::string &value = attr.second;
     if (key == "label") {
       node_attrs.label_ = value;
+    } else if (key == "name") {
+      node_attrs.name_ = value;
     } else if (key == "shape") {
       if (value == "capsule") {
         node_attrs.shape_ = LinkShape::CAPSULE;
@@ -99,6 +101,8 @@ void updateEdgeAttributes(
     const std::string &value = attr.second;
     if (key == "id") {
       edge_attrs.id_ = value;
+    } else if (key == "name") {
+      edge_attrs.name_ = value;
     } else if (key == "label") {
       edge_attrs.label_ = value;
     } else if (key == "type") {

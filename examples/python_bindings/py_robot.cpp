@@ -29,7 +29,8 @@ void initRobot(py::module &m) {
                     rd::Scalar, rd::Scalar, rd::Scalar, rd::Scalar, rd::Scalar,
                     rd::Scalar, rd::Scalar, rd::JointControlMode,
                     const rd::Color &, const rd::Color &, const std::string &,
-                    const std::string &>())
+                    const std::string &, const std::string &, const std::string &, 
+                    bool>())
       .def_readwrite("parent", &rd::Link::parent_)
       .def_readwrite("joint_type", &rd::Link::joint_type_)
       .def_readwrite("joint_pos", &rd::Link::joint_pos_)
@@ -47,7 +48,10 @@ void initRobot(py::module &m) {
       .def_readwrite("color", &rd::Link::color_)
       .def_readwrite("joint_color", &rd::Link::joint_color_)
       .def_readwrite("label", &rd::Link::label_)
-      .def_readwrite("joint_label", &rd::Link::joint_label_);
+      .def_readwrite("joint_label", &rd::Link::joint_label_)
+      .def_readwrite("link_name", &rd::Link::link_name_)
+      .def_readwrite("joint_name", &rd::Link::joint_name_)
+      .def_readwrite("mirror", &rd::Link::mirror_);
 
   py::class_<rd::Robot, std::shared_ptr<rd::Robot>>(m, "Robot")
       .def(py::init<>())
